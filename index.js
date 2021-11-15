@@ -14,7 +14,7 @@ const port = process.env.PORT || 5000;
 
 app.use(cors());
 
-// app.use
+
 app.use(express.json());
 
 
@@ -25,20 +25,48 @@ async function run() {
     await client.connect();
     const database = client.db("mobile-hunterDB");
     const userCollection = database.collection("mobile-list");
+    const reviewCollection = database.collection("reviews");
 
-    // const database_tour = client.db("TourPlace");
 
-    // const userCollection_tour = database_tour.collection("place");
 
-    // create a document to insert
+    //POST API
 
-    //Get api
+    app.post('/reviews', async (req, res) => {
+      const addReview = req.body;
+      const result = await reviewCollection.insertOne(addReview);
 
+      console.log('added review ', result)
+      res.send(result);
+    })
+
+
+    // get API
+    app.get('/reviews', async (req, res) => {
+
+      const reviewcursor = reviewCollection.find({});
+      const reviewService = await reviewcursor.toArray();
+      res.send(reviewService);
+    })
 
 
     //Get API
 
-    app.get('/purchase', async (req, res) => {
+    app.get('/products', async (req, res) => {
+      const cursor = userCollection.find({});
+      const explo_product = await cursor.toArray();
+      res.send(explo_product);
+    })
+
+
+    // post API
+    app.post('/addProducts', async (req, res) => {
+      const newProduct = req.body;
+      const result = await userCollection.insertOne(newProduct);
+
+      res.send(result);
+    })
+
+    app.get('/products/:id', async (req, res) => {
       const cursor = userCollection.find({});
       const explo_product = await cursor.toArray();
       res.send(explo_product);
@@ -47,16 +75,19 @@ async function run() {
 
     // single user display
 
-    app.get('/users/:id', async (req, res) => {
+    app.get('/products/:id', async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
 
-      console.log(query);
-      const user = await userCollection.findOne(query);
+
+      const productName = await userCollection.findOne(query);
 
       console.log('load user with id: ', id);
-      res.send(user);
+      res.send(productName);
     })
+
+
+
 
 
 
