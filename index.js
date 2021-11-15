@@ -25,7 +25,27 @@ async function run() {
     await client.connect();
     const database = client.db("mobile-hunterDB");
     const userCollection = database.collection("mobile-list");
+    const buyerCollection = database.collection("user");
+
     const reviewCollection = database.collection("reviews");
+    const OrdersCollection = database.collection("orders");
+
+
+
+
+    //orders post api
+    app.post('/orders', async (req, res) => {
+      const orders = req.body;
+      const result = await OrdersCollection.insertOne(orders);
+      res.json(result);
+    });
+
+    //all orders get api
+    app.get('/orders', async (req, res) => {
+      const cursor = OrdersCollection.find({})
+      const orders = await cursor.toArray();
+      res.json(orders);
+    });
 
 
 
@@ -35,7 +55,8 @@ async function run() {
       const addReview = req.body;
       const result = await reviewCollection.insertOne(addReview);
 
-      console.log('added review ', result)
+      console.log(addReview)
+
       res.send(result);
     })
 
@@ -45,7 +66,7 @@ async function run() {
 
       const reviewcursor = reviewCollection.find({});
       const reviewService = await reviewcursor.toArray();
-      res.send(reviewService);
+      res.json(reviewService);
     })
 
 
@@ -56,6 +77,56 @@ async function run() {
       const explo_product = await cursor.toArray();
       res.send(explo_product);
     })
+
+
+
+
+    //user(admin) get api
+    app.get('/users/:email', async (req, res) => {
+      const email = req.params.email;
+
+      console.log(email);
+      const query = { email: email }
+      const user = await buyerCollection.findOne(query);
+      let isAdmin = false;
+      if (user?.role === 'admin') {
+        isAdmin = true;
+      }
+      res.json({ admin: isAdmin });
+    });
+
+    //users post api
+    app.post('/users', async (req, res) => {
+      const users = req.body;
+      const result = await buyerCollection.insertOne(users);
+      res.json(result);
+
+      console.log(users);
+    });
+
+    //users put api
+
+    app.put('/users', async (req, res) => {
+      const user = req.body;
+      const filter = { email: user.email }
+      const options = { upsert: true }
+      const updateDoc = { $set: user }
+      const result = await buyerCollection.updateOne(filter, updateDoc, options)
+      res.json(result);
+
+
+    });
+
+    //admin
+    app.put('/users/admin', async (req, res) => {
+      const user = req.body;
+      const filter = { email: user.email }
+      const updateDoc = { $set: { role: 'admin' } }
+      const result = await buyerCollection.updateOne(filter, updateDoc)
+      res.json(result);
+
+    })
+
 
 
     // post API
