@@ -6,7 +6,7 @@ const cors = require('cors');
 const ObjectId = require('mongodb').ObjectId;
 
 const { MongoClient } = require('mongodb');
-const port = process.env.PORT || 8000;
+const port = process.env.PORT || 5000;
 
 
 
@@ -28,7 +28,8 @@ async function run() {
     const buyerCollection = database.collection("user");
 
     const reviewCollection = database.collection("reviews");
-    const OrdersCollection = database.collection("orders");
+    const ordersCollection = database.collection("currentOrder");
+
 
 
 
@@ -36,13 +37,14 @@ async function run() {
     //orders post api
     app.post('/orders', async (req, res) => {
       const orders = req.body;
-      const result = await OrdersCollection.insertOne(orders);
+      const result = await ordersCollection.insertOne(orders);
+      console.log(result);
       res.json(result);
     });
 
     //all orders get api
     app.get('/orders', async (req, res) => {
-      const cursor = OrdersCollection.find({})
+      const cursor = ordersCollection.find({});
       const orders = await cursor.toArray();
       res.json(orders);
     });
