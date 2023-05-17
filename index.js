@@ -6,6 +6,7 @@ const cors = require('cors');
 const ObjectId = require('mongodb').ObjectId;
 
 const { MongoClient } = require('mongodb');
+const { query } = require('express');
 const port = process.env.PORT || 5000;
 
 
@@ -42,6 +43,16 @@ async function run() {
       res.json(result);
     });
 
+    // Delivery Status
+
+
+    app.get('/deliverystatus/:id', async (req, res) => {
+      const cursor = ordersCollection.find({});
+      const product_Status = await cursor.toArray();
+      res.send(product_Status);
+    })
+
+
     //all orders get api
     app.get('/orders', async (req, res) => {
       const cursor = ordersCollection.find({});
@@ -49,6 +60,17 @@ async function run() {
       res.json(orders);
     });
 
+
+    // Delete API
+
+    app.delete('/orders/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+
+      const result = await ordersCollection.deleteOne(query);
+      console.log('deleting user with id', result);
+      res.json(result);
+    })
 
 
     //POST API
