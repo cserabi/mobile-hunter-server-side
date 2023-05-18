@@ -30,6 +30,7 @@ async function run() {
 
     const reviewCollection = database.collection("reviews");
     const ordersCollection = database.collection("currentOrder");
+    const updateStatus = database.collection("status");
 
 
 
@@ -91,6 +92,25 @@ async function run() {
       const reviewcursor = reviewCollection.find({});
       const reviewService = await reviewcursor.toArray();
       res.json(reviewService);
+    })
+
+    //  Post Update Status
+
+    app.post('/status/:id', async (req, res) => {
+      const status = req.body;
+      const status_result = await updateStatus.insertOne(status);
+
+      console.log(status.length);
+      res.json(status_result)
+
+    })
+
+    // Get update status
+    app.get('/status/:id', async (req, res) => {
+      const cursor = updateStatus.find({});
+      const newStatus = await cursor.toArray();
+      res.send(newStatus);
+
     })
 
 
