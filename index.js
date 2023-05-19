@@ -184,15 +184,23 @@ async function run() {
     });
 
     //admin
-    app.put("/users/admin", async (req, res) => {
-      const user = req.body;
-      console.log(user);
-      const filter = { email: user.email };
-      const updateDoc = { $set: { role: "admin" } };
+    // app.put("/users/admin",  (req, res) => {
+    //   const user = req.body;
+    //   console.log(user);
+    //   const filter = { email: user.email };
+    //   const updateDoc = { $set: { role: "admin" } };
       
-      const result = await buyerCollection.updateOne(filter, updateDoc);
+    //   const result = buyerCollection.updateOne(filter, updateDoc);
+    //   res.json(result);
+    // });
+    app.put('/users/admin', async (req, res) => {
+      const user = req.body;
+      const filter = { email: user.email }
+      const updateDoc = { $set: { role: 'admin' } }
+      const result = await buyerCollection.updateOne(filter, updateDoc)
       res.json(result);
-    });
+
+  })
 
     // post API for add product
     app.post("/addProducts", async (req, res) => {
