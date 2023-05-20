@@ -154,7 +154,7 @@ async function run() {
     app.get("/users/:email", async (req, res) => {
       const email = req.params.email;
 
-      console.log(email);
+      // console.log(email);
       const query = { email: email };
       const user = await buyerCollection.findOne(query);
       let isAdmin = false;
@@ -167,10 +167,11 @@ async function run() {
     //users post api
     app.post("/users", async (req, res) => {
       const users = req.body;
+      // console.log(users);
       const result = await buyerCollection.insertOne(users);
       res.json(result);
 
-      console.log(users);
+      
     });
 
     //users put api
@@ -189,13 +190,23 @@ async function run() {
     });
 
     //admin
-    app.put("/users/admin", async (req, res) => {
+    // app.put("/users/admin",  (req, res) => {
+    //   const user = req.body;
+    //   console.log(user);
+    //   const filter = { email: user.email };
+    //   const updateDoc = { $set: { role: "admin" } };
+      
+    //   const result = buyerCollection.updateOne(filter, updateDoc);
+    //   res.json(result);
+    // });
+    app.put('/users/admin', async (req, res) => {
       const user = req.body;
-      const filter = { email: user.email };
-      const updateDoc = { $set: { role: "admin" } };
-      const result = await buyerCollection.updateOne(filter, updateDoc);
+      const filter = { email: user.email }
+      const updateDoc = { $set: { role: 'admin' } }
+      const result = await buyerCollection.updateOne(filter, updateDoc)
       res.json(result);
-    });
+
+  })
 
     // post API for add product
     app.post("/addProducts", async (req, res) => {
