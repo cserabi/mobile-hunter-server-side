@@ -171,7 +171,7 @@ async function run() {
       const result = await buyerCollection.insertOne(users);
       res.json(result);
 
-      
+
     });
 
     //users put api
@@ -195,7 +195,7 @@ async function run() {
     //   console.log(user);
     //   const filter = { email: user.email };
     //   const updateDoc = { $set: { role: "admin" } };
-      
+
     //   const result = buyerCollection.updateOne(filter, updateDoc);
     //   res.json(result);
     // });
@@ -206,7 +206,7 @@ async function run() {
       const result = await buyerCollection.updateOne(filter, updateDoc)
       res.json(result);
 
-  })
+    })
 
     // post API for add product
     app.post("/addProducts", async (req, res) => {
