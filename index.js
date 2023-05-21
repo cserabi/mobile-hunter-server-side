@@ -244,16 +244,17 @@ async function run() {
     // app.use(bodyParser.json());
 
 
-    app.use("/ssl-request", async (req, res, next) => {
+    app.post("/ssl-request", async (req, res, next) => {
 
+      console.log("Price", req.body.price);
       const data = {
-        total_amount: 100,
-        currency: 'EUR',
+        total_amount: req.body.price,
+        currency: 'BDT',
         tran_id: 'REF123',
-        success_url: `${process.env.PORT}/ssl-payment-success`,
-        fail_url: `${process.env.PORT}/ssl-payment-failure`,
-        cancel_url: `${process.env.PORT}/ssl-payment-cancel`,
-        ipn_url: `${process.env.PORT}/ssl-payment-ipn`,
+        success_url: `http://localhost:3000/ssl-payment-success`,
+        fail_url: `http://localhost:3000/ssl-payment-failure`,
+        cancel_url: `http://localhost:3000/ssl-payment-cancel`,
+        ipn_url: `http://localhost:3000/ssl-payment-ipn`,
         shipping_method: 'Courier',
         product_name: 'Computer.',
         product_category: 'Electronic',
@@ -281,17 +282,20 @@ async function run() {
         value_c: 'ref003_C',
         value_d: 'ref004_D'
       };
+      console.log(process.env.STORE_ID);
       const sslcz = new SSLCommerzPayment(process.env.STORE_ID, process.env.STORE_PASSWORD, false) //true for live default false for sandbox
       sslcz.init(data).then(apiResponse => {
         //process the response that got from sslcommerz 
         //https://developer.sslcommerz.com/doc/v4/#returned-parameters
 
-        let GatewayPageURL = apiResponse.GatewayPageURL
+        let GatewayPageURL = apiResponse?.GatewayPageURL
 
 
 
         if (GatewayPageURL) {
-          return res.status(200).redirect(GatewayPageURL);
+          return res.status(200).json({
+            url: GatewayPageURL
+          });
         }
 
         else {
@@ -351,5 +355,6 @@ app.get("/", (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log("Running my curd server on port");
+  console.log(process.env.PORT);
+  console.log("Running my curd server on port" + port);
 });
