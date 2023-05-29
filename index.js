@@ -30,10 +30,10 @@ async function run() {
     const database = client.db("mobile-hunterDB");
     const userCollection = database.collection("mobile-list");
     const buyerCollection = database.collection("user");
-
     const reviewCollection = database.collection("reviews");
     const ordersCollection = database.collection("currentOrder");
     const updateStatus = database.collection("status");
+    const paymentCollection = database.collection("payment")
 
     //orders post api
     app.post("/orders", async (req, res) => {
@@ -243,18 +243,29 @@ async function run() {
 
     // app.use(bodyParser.json());
 
+    // const payment = req.body;
+    // const resultPayment = await paymentCollection.insertOne(payment);
+
+    // res.send(resultPayment);
 
     app.post("/ssl-request", async (req, res, next) => {
 
-      console.log("Price", req.body.price);
+      // const payment = req.body;
+      // const resultPayment = await paymentCollection.insertOne(payment);
+      // res.send(resultPayment);
+
+
+
+      console.log("id", req.body._id);
+      console.log("price", req.body.price);
       const data = {
         total_amount: req.body.price,
         currency: 'BDT',
         tran_id: 'REF123',
-        success_url: `http://localhost:3000/ssl-payment-success`,
-        fail_url: `http://localhost:3000/ssl-payment-failure`,
-        cancel_url: `http://localhost:3000/ssl-payment-cancel`,
-        ipn_url: `http://localhost:3000/ssl-payment-ipn`,
+        success_url: 'http://localhost:5000/ssl-payment-success',
+        fail_url: 'http://localhost:5000/ssl-payment-failure',
+        cancel_url: `http://localhost:5000/ssl-payment-cancel`,
+        ipn_url: `http://localhost:5000/ssl-payment-ipn`,
         shipping_method: 'Courier',
         product_name: 'Computer.',
         product_category: 'Electronic',
@@ -282,6 +293,8 @@ async function run() {
         value_c: 'ref003_C',
         value_d: 'ref004_D'
       };
+
+
       console.log(process.env.STORE_ID);
       const sslcz = new SSLCommerzPayment(process.env.STORE_ID, process.env.STORE_PASSWORD, false) //true for live default false for sandbox
       sslcz.init(data).then(apiResponse => {
@@ -310,19 +323,64 @@ async function run() {
 
     });
 
-    app.post("/ssl-payment-success", async (req, res, next) => {
-      return res.status(200).json
-        ({
-          data: req.body
+
+
+
+    const handleUpdateStatus = id => {
+      const update = {
+        status: 'paid'
+      }
+      const url = `http://localhost:5000/orders/${id}`;
+      fetch(url, {
+        method: 'PUT',
+        headers: {
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify(update)
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.modifiedCount > 0) {
+            setStatus(data);
+            alert('Status updated successfully');
+
+          }
         })
+    }
+
+    app.post('/ssl-payment-success', async (req, res, next) => {
+      try {
+        // console.log(res.body.price);
+        console.log(res.body);
+        // ordersCollection
+        //   .updateOne(
+        //     { _id: ObjectId(req.params.id) },
+        //     {
+        //       $set: {
+        //         status: 'Paid'
+        //       }
+        //     }
+        //   )
+        //   .then(result => {
+        //     res.send(result.modifiedCount > 0);
+        //   });
+        res.redirect('http://localhost:3000/ssl-payment-success');
+      } catch (error) {
+        next(error);
+      }
     });
 
 
-    app.post("/ssl-payment-failure", async (req, res, next) => {
-      return res.status(400).json
-        ({
-          data: req.body
-        })
+    app.post('/ssl-payment-failure', async (req, res, next) => {
+
+      try {
+        res.redirect('http://localhost:3000/ssl-payment-failure');
+
+      }
+      catch (error) {
+        next(error);
+      }
+
     });
 
     app.post("/ssl-payment-cancel", async (req, res, next) => {
